@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>東京旅遊行程表 (2025年5月15-19日)</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <style>
         body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; }
         .header { background-color: #1e40af; color: white; padding: 20px; text-align: center; border-radius: 8px; }
@@ -11,10 +13,17 @@
         .activity { display: flex; margin: 15px 0; padding: 10px; background-color: #f3f4f6; border-radius: 8px; }
         .time { width: 120px; font-weight: bold; }
         .description { flex: 1; }
-        .location { color: #1e40af; cursor: pointer; }
+        .location { color: #1e40af; cursor: pointer; text-decoration: underline; }
         .hotel-info { background-color: #f0f9ff; padding: 15px; border-radius: 8px; margin: 20px 0; }
-        .map-container { height: 400px; background-color: #e5e7eb; margin: 20px 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-        .map-placeholder { text-align: center; }
+        #map { height: 400px; width: 100%; border-radius: 8px; margin: 20px 0; }
+        .legend { background-color: white; padding: 10px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .legend div { margin: 5px 0; display: flex; align-items: center; }
+        .legend-color { width: 15px; height: 15px; display: inline-block; margin-right: 5px; border-radius: 50%; }
+        .tabs { display: flex; gap: 5px; margin: 20px 0 10px 0; }
+        .tab { padding: 10px 15px; background-color: #e5e7eb; border-radius: 8px 8px 0 0; cursor: pointer; }
+        .tab.active { background-color: #3b82f6; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
 <body>
@@ -23,92 +32,565 @@
         <p>2025年5月15-19日</p>
     </div>
     
-    <div class="map-container">
-        <div class="map-placeholder">
-            <h2>東京行程地圖</h2>
-            <p>顯示住宿地點：OMO3 Asakusa by Hoshino Resorts 及主要景點</p>
+    <!-- Map Container -->
+    <div id="map"></div>
+    
+    <div class="tabs">
+        <div class="tab active" data-tab="overview">概覽</div>
+        <div class="tab" data-tab="day1">第1天</div>
+        <div class="tab" data-tab="day2">第2天</div>
+        <div class="tab" data-tab="day3">第3天</div>
+        <div class="tab" data-tab="day4">第4天</div>
+        <div class="tab" data-tab="day5">第5天</div>
+        <div class="tab" data-tab="info">實用資訊</div>
+    </div>
+    
+    <!-- Overview Tab -->
+    <div id="overview" class="tab-content active">
+        <div class="hotel-info">
+            <h3>住宿資訊</h3>
+            <p><strong>OMO3 Asakusa by Hoshino Resorts</strong><br>
+            東京都台東區淺草2-12-4<br>
+            位於淺草區的現代化酒店，靠近淺草寺和晴空塔。</p>
+        </div>
+        
+        <h3>行程概覽</h3>
+        <div class="activity">
+            <div class="time">第1天</div>
+            <div class="description">5月15日：抵達東京，淺草初探<br>
+            <span class="location" data-day="day1">查看詳情</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">第2天</div>
+            <div class="description">5月16日：鎌倉一日遊<br>
+            <span class="location" data-day="day2">查看詳情</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">第3天</div>
+            <div class="description">5月17日：東京市區觀光<br>
+            <span class="location" data-day="day3">查看詳情</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">第4天</div>
+            <div class="description">5月18日：築地市場與原宿明治神宮<br>
+            <span class="location" data-day="day4">查看詳情</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">第5天</div>
+            <div class="description">5月19日：淺草寺和購物，返回香港<br>
+            <span class="location" data-day="day5">查看詳情</span></div>
         </div>
     </div>
     
-    <div class="hotel-info">
-        <h3>住宿資訊</h3>
-        <p><strong>OMO3 Asakusa by Hoshino Resorts</strong><br>
-        東京都台東區淺草2-12-4<br>
-        位於淺草區的現代化酒店，靠近淺草寺和晴空塔。</p>
+    <!-- Day 1 Tab -->
+    <div id="day1" class="tab-content">
+        <div class="day-title">
+            <h2>第1天 (5月15日)：抵達東京，淺草初探</h2>
+        </div>
+        
+        <div class="activity">
+            <div class="time">08:15-13:40</div>
+            <div class="description">從香港飛往東京成田機場 (CX526)</div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">14:30-15:30</div>
+            <div class="description">搭乘成田特快列車(N'EX)前往東京市區<br>
+            <small>車程約60分鐘，票價約3,000日圓</small></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">16:00</div>
+            <div class="description">抵達酒店辦理入住 (OMO3 Asakusa by Hoshino Resorts)</div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">17:00-19:00</div>
+            <div class="description">前往淺草晴空塔，體驗夜景<br>
+            <span class="location" data-loc="skytree">淺草/淺草寺</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">19:30</div>
+            <div class="description">在晴空塔附近用晚餐：向島茶屋<br>
+            <small>特色：江戶風味鰻魚飯，價格：¥3,000-5,000/人</small></div>
+        </div>
     </div>
     
-    <div class="day-title">
-        <h2>第1天 (5月15日)：抵達東京，淺草初探</h2>
+    <!-- Day 2 Tab -->
+    <div id="day2" class="tab-content">
+        <div class="day-title">
+            <h2>第2天 (5月16日)：鎌倉一日遊</h2>
+        </div>
+        
+        <div class="activity">
+            <div class="time">08:00-09:30</div>
+            <div class="description">從東京站搭乘JR橫須賀線前往鎌倉</div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">09:45-11:00</div>
+            <div class="description">參觀鶴岡八幡宮<br>
+            <span class="location" data-loc="tsurugaoka">鶴岡八幡宮</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">11:30-12:30</div>
+            <div class="description">在小町通享用午餐：鎌倉 松原庵<br>
+            <small>特色：傳統蕎麥麵，位於小町通上，價格：¥1,200-2,000/人</small></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">13:00-14:00</div>
+            <div class="description">參觀高德院大佛<br>
+            <span class="location" data-loc="daibutsu">高德院大佛</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">14:30-15:30</div>
+            <div class="description">參觀長谷寺<br>
+            <span class="location" data-loc="hasedera">長谷寺</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">16:00-17:00</div>
+            <div class="description">江之島散步（如果時間允許）<br>
+            <span class="location" data-loc="enoshima">江之島</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">17:30-19:00</div>
+            <div class="description">返回東京</div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">19:30</div>
+            <div class="description">晚餐：福笑<br>
+            <small>位於新宿，居酒屋，日本傳統菜餚，價格：¥3,000-4,000/人</small></div>
+        </div>
     </div>
     
-    <div class="activity">
-        <div class="time">08:15-13:40</div>
-        <div class="description">從香港飛往東京成田機場 (CX526)</div>
+    <!-- Day 3 Tab -->
+    <div id="day3" class="tab-content">
+        <div class="day-title">
+            <h2>第3天 (5月17日)：東京市區觀光</h2>
+        </div>
+        
+        <div class="activity">
+            <div class="time">09:00-10:30</div>
+            <div class="description">參觀上野公園/上野動物園<br>
+            <span class="location" data-loc="ueno">上野公園</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">11:00-12:30</div>
+            <div class="description">參觀東京國立博物館<br>
+            <span class="location" data-loc="museum">東京國立博物館</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">13:00-14:00</div>
+            <div class="description">在上野享用午餐：上野 大江戶<br>
+            <small>特色：天婦羅定食，價格：¥1,200-2,000/人</small></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">14:30-16:30</div>
+            <div class="description">前往秋葉原逛電器街和動漫周邊<br>
+            <span class="location" data-loc="akihabara">秋葉原</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">17:00-19:00</div>
+            <div class="description">前往銀座購物區<br>
+            <span class="location" data-loc="ginza">銀座</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">19:30</div>
+            <div class="description">晚餐：銀座久兵衛<br>
+            <small>高級壽司店，需提前預約，價格：¥15,000-30,000/人</small></div>
+        </div>
     </div>
     
-    <div class="activity">
-        <div class="time">14:30-15:30</div>
-        <div class="description">搭乘成田特快列車(N'EX)前往東京市區<br>
-        <small>車程約60分鐘，票價約3,000日圓</small></div>
+    <!-- Day 4 Tab -->
+    <div id="day4" class="tab-content">
+        <div class="day-title">
+            <h2>第4天 (5月18日)：築地市場與原宿明治神宮</h2>
+        </div>
+        
+        <div class="activity">
+            <div class="time">09:00-11:00</div>
+            <div class="description">參觀築地外市場，品嚐新鮮海鮮<br>
+            <span class="location" data-loc="tsukiji">築地市場</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">11:30-13:00</div>
+            <div class="description">前往明治神宮<br>
+            <span class="location" data-loc="meiji">明治神宮</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">13:30-14:30</div>
+            <div class="description">在原宿享用午餐：Bills 原宿店<br>
+            <small>特色：著名的鬆餅，價格：¥2,000-3,000/人</small></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">15:00-17:30</div>
+            <div class="description">探索原宿竹下通與表參道時尚街區<br>
+            <span class="location" data-loc="harajuku">原宿</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">18:00-19:30</div>
+            <div class="description">前往新宿觀賞夜景（新宿都廳展望台）<br>
+            <span class="location" data-loc="shinjuku">新宿</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">20:00</div>
+            <div class="description">晚餐：叙々苑 新宿總本店<br>
+            <small>頂級燒肉，價格：¥6,000-10,000/人</small></div>
+        </div>
     </div>
     
-    <div class="activity">
-        <div class="time">16:00</div>
-        <div class="description">抵達酒店辦理入住 (OMO3 Asakusa by Hoshino Resorts)</div>
+    <!-- Day 5 Tab -->
+    <div id="day5" class="tab-content">
+        <div class="day-title">
+            <h2>第5天 (5月19日)：淺草寺和購物，返回香港</h2>
+        </div>
+        
+        <div class="activity">
+            <div class="time">09:00-10:00</div>
+            <div class="description">退房並將行李寄存於酒店</div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">10:30-12:00</div>
+            <div class="description">參觀淺草寺和仲見世通商店街<br>
+            <span class="location" data-loc="sensoji">淺草寺</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">12:30-13:30</div>
+            <div class="description">在淺草享用午餐：淺草今半 本店<br>
+            <small>特色：百年老店壽喜燒，價格：¥3,000-6,000/人</small></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">14:00-15:30</div>
+            <div class="description">前往購物中心進行最後的購物（建議新宿或澀谷）<br>
+            <span class="location" data-loc="shibuya">澀谷</span></div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">16:00</div>
+            <div class="description">返回酒店取行李，前往成田機場</div>
+        </div>
+        
+        <div class="activity">
+            <div class="time">18:30-22:20</div>
+            <div class="description">從東京飛往香港 (CX505)</div>
+        </div>
     </div>
     
-    <div class="activity">
-        <div class="time">17:00-19:00</div>
-        <div class="description">前往淺草晴空塔，體驗夜景<br>
-        <span class="location">淺草/淺草寺</span></div>
+    <!-- Info Tab -->
+    <div id="info" class="tab-content">
+        <div class="hotel-info">
+            <h3>實用資訊</h3>
+            <p><strong>交通卡選擇：</strong></p>
+            <ul>
+                <li>Suica/Pasmo卡：可用於幾乎所有公共交通和便利店消費</li>
+                <li>東京地鐵通票：1-3日券，僅限地鐵使用</li>
+                <li>JR東日本通票：覆蓋JR線路，適合長距離移動</li>
+            </ul>
+            
+            <p><strong>上網方案：</strong></p>
+            <ul>
+                <li>建議在機場租用Wi-Fi蛋或購買日本當地SIM卡</li>
+                <li>常見選擇：Softbank、Docomo、日本通等服務商</li>
+            </ul>
+            
+            <p><strong>實用應用程式：</strong></p>
+            <ul>
+                <li>Japan Transit Planner：規劃交通路線</li>
+                <li>Google Maps：地圖導航</li>
+                <li>Google翻譯：翻譯服務</li>
+            </ul>
+            
+            <p><strong>緊急聯繫：</strong></p>
+            <ul>
+                <li>緊急電話：110（警察）、119（救護車/消防）</li>
+                <li>香港駐東京經濟貿易辦事處：+81-3-3556-8981</li>
+            </ul>
+        </div>
     </div>
     
-    <div class="activity">
-        <div class="time">19:30</div>
-        <div class="description">在晴空塔附近用晚餐：向島茶屋<br>
-        <small>特色：江戶風味鰻魚飯，價格：¥3,000-5,000/人</small></div>
-    </div>
-    
-    <div class="day-title">
-        <h2>第2天 (5月16日)：鎌倉一日遊</h2>
-    </div>
-    
-    <div class="activity">
-        <div class="time">08:00-09:30</div>
-        <div class="description">從東京站搭乘JR橫須賀線前往鎌倉</div>
-    </div>
-    
-    <div class="activity">
-        <div class="time">09:45-11:00</div>
-        <div class="description">參觀鶴岡八幡宮<br>
-        <span class="location">鎌倉</span></div>
-    </div>
-    
-    <!-- Continue with more days and activities -->
-    
-    <div class="day-title">
-        <h2>第3天 (5月17日)：東京市區觀光</h2>
-    </div>
-    
-    <!-- Add Day 3 activities -->
-    
-    <div class="day-title">
-        <h2>第4天 (5月18日)：築地市場與原宿明治神宮</h2>
-    </div>
-    
-    <!-- Add Day 4 activities -->
-    
-    <div class="day-title">
-        <h2>第5天 (5月19日)：淺草寺和購物，返回香港</h2>
-    </div>
-    
-    <!-- Add Day 5 activities -->
-    
-    <div class="hotel-info">
-        <h3>實用資訊</h3>
-        <p><strong>交通卡選擇：</strong> Suica/Pasmo卡、東京地鐵通票、JR東日本通票</p>
-        <p><strong>緊急聯繫：</strong> 110（警察）、119（救護車/消防）</p>
-        <p><strong>香港駐東京經濟貿易辦事處：</strong> +81-3-3556-8981</p>
-    </div>
+    <!-- Leaflet JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([35.6895, 139.6917], 11);  // Tokyo coordinates
+        
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+        }).addTo(map);
+        
+        // Define markers with custom icons
+        const hotelIcon = L.divIcon({
+            html: '<div style="background-color: #e11d48; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>',
+            className: 'marker-icon',
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
+        });
+        
+        const attractionIcon = L.divIcon({
+            html: '<div style="background-color: #3b82f6; width: 10px; height: 10px; border-radius: 50%; border: 2px solid white;"></div>',
+            className: 'marker-icon',
+            iconSize: [14, 14],
+            iconAnchor: [7, 7]
+        });
+        
+        // Location data
+        const locations = {
+            hotel: {
+                name: "OMO3 Asakusa by Hoshino Resorts",
+                coords: [35.7169, 139.7977],
+                description: "位於淺草區的現代化酒店，靠近淺草寺和晴空塔。",
+                icon: hotelIcon,
+                day: "住宿"
+            },
+            skytree: {
+                name: "東京晴空塔",
+                coords: [35.7100, 139.8107],
+                description: "東京的地標性建築，是世界第二高的建築物。",
+                icon: attractionIcon,
+                day: "第1天"
+            },
+            sensoji: {
+                name: "淺草寺",
+                coords: [35.7147, 139.7966],
+                description: "東京最古老的寺廟，有雷門和仲見世通。",
+                icon: attractionIcon,
+                day: "第5天"
+            },
+            tsurugaoka: {
+                name: "鶴岡八幡宮",
+                coords: [35.3253, 139.5564],
+                description: "鎌倉最重要的神社。",
+                icon: attractionIcon,
+                day: "第2天"
+            },
+            daibutsu: {
+                name: "高德院大佛",
+                coords: [35.3167, 139.5358],
+                description: "鎌倉著名的戶外大佛像。",
+                icon: attractionIcon,
+                day: "第2天"
+            },
+            hasedera: {
+                name: "長谷寺",
+                coords: [35.3169, 139.5330],
+                description: "以觀音像和美麗的花園聞名的寺廟。",
+                icon: attractionIcon,
+                day: "第2天"
+            },
+            enoshima: {
+                name: "江之島",
+                coords: [35.3002, 139.4804],
+                description: "受歡迎的小島，有海灘和神社。",
+                icon: attractionIcon,
+                day: "第2天"
+            },
+            ueno: {
+                name: "上野公園",
+                coords: [35.7151, 139.7734],
+                description: "大型公園，有動物園和多家博物館。",
+                icon: attractionIcon,
+                day: "第3天"
+            },
+            museum: {
+                name: "東京國立博物館",
+                coords: [35.7187, 139.7765],
+                description: "日本最大、最古老的博物館。",
+                icon: attractionIcon,
+                day: "第3天"
+            },
+            akihabara: {
+                name: "秋葉原",
+                coords: [35.7022, 139.7741],
+                description: "電子產品和動漫文化的中心地帶。",
+                icon: attractionIcon,
+                day: "第3天"
+            },
+            ginza: {
+                name: "銀座",
+                coords: [35.6721, 139.7636],
+                description: "東京的高級購物區。",
+                icon: attractionIcon,
+                day: "第3天"
+            },
+            tsukiji: {
+                name: "築地市場",
+                coords: [35.6654, 139.7707],
+                description: "著名的海鮮市場，提供新鮮的日本美食。",
+                icon: attractionIcon,
+                day: "第4天"
+            },
+            meiji: {
+                name: "明治神宮",
+                coords: [35.6764, 139.6993],
+                description: "位於東京市中心的大型神社和森林。",
+                icon: attractionIcon,
+                day: "第4天"
+            },
+            harajuku: {
+                name: "原宿",
+                coords: [35.6716, 139.7031],
+                description: "年輕人時尚中心，有竹下通和表參道。",
+                icon: attractionIcon,
+                day: "第4天"
+            },
+            shinjuku: {
+                name: "新宿",
+                coords: [35.6938, 139.7034],
+                description: "繁華的商業區，有摩天大樓和夜生活。",
+                icon: attractionIcon,
+                day: "第4天"
+            },
+            shibuya: {
+                name: "澀谷",
+                coords: [35.6580, 139.7016],
+                description: "著名的購物和娛樂區，有忠犬八公像和澀谷十字路口。",
+                icon: attractionIcon,
+                day: "第5天"
+            }
+        };
+        
+        // Add markers to map
+        const markers = {};
+        const dayLayers = {
+            "all": L.layerGroup(),
+            "day1": L.layerGroup(),
+            "day2": L.layerGroup(),
+            "day3": L.layerGroup(),
+            "day4": L.layerGroup(),
+            "day5": L.layerGroup()
+        };
+        
+        for (const [key, location] of Object.entries(locations)) {
+            const marker = L.marker(location.coords, { icon: location.icon })
+                .bindPopup(`<b>${location.name}</b><br>${location.description}<br><small>${location.day}</small>`);
+            
+            markers[key] = marker;
+            
+            // Add to day-specific layer and all layer
+            dayLayers.all.addLayer(marker);
+            
+            if (location.day === "第1天") {
+                dayLayers.day1.addLayer(marker);
+            } else if (location.day === "第2天") {
+                dayLayers.day2.addLayer(marker);
+            } else if (location.day === "第3天") {
+                dayLayers.day3.addLayer(marker);
+            } else if (location.day === "第4天") {
+                dayLayers.day4.addLayer(marker);
+            } else if (location.day === "第5天") {
+                dayLayers.day5.addLayer(marker);
+            }
+            
+            // Hotel is on all days
+            if (key === "hotel") {
+                dayLayers.day1.addLayer(marker);
+                dayLayers.day2.addLayer(marker);
+                dayLayers.day3.addLayer(marker);
+                dayLayers.day4.addLayer(marker);
+                dayLayers.day5.addLayer(marker);
+            }
+        }
+        
+        // Add all markers initially
+        dayLayers.all.addTo(map);
+        
+        // Create legend
+        const legend = L.control({ position: 'bottomright' });
+        
+        legend.onAdd = function(map) {
+            const div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = `
+                <div><span class="legend-color" style="background-color: #e11d48;"></span> 住宿</div>
+                <div><span class="legend-color" style="background-color: #3b82f6;"></span> 景點</div>
+            `;
+            return div;
+        };
+        
+        legend.addTo(map);
+        
+        // Tab switching functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Update active tab
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update active content
+                const tabId = this.getAttribute('data-tab');
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+                
+                // Update map markers based on selected day
+                map.removeLayer(dayLayers.all);
+                map.removeLayer(dayLayers.day1);
+                map.removeLayer(dayLayers.day2);
+                map.removeLayer(dayLayers.day3);
+                map.removeLayer(dayLayers.day4);
+                map.removeLayer(dayLayers.day5);
+                
+                if (tabId === 'day1') {
+                    map.addLayer(dayLayers.day1);
+                    map.fitBounds(L.featureGroup([markers.hotel, markers.skytree, markers.sensoji]).getBounds(), { padding: [50, 50] });
+                } else if (tabId === 'day2') {
+                    map.addLayer(dayLayers.day2);
+                    map.fitBounds(L.featureGroup([markers.tsurugaoka, markers.daibutsu, markers.hasedera, markers.enoshima]).getBounds(), { padding: [50, 50] });
+                } else if (tabId === 'day3') {
+                    map.addLayer(dayLayers.day3);
+                    map.fitBounds(L.featureGroup([markers.ueno, markers.museum, markers.akihabara, markers.ginza]).getBounds(), { padding: [50, 50] });
+                } else if (tabId === 'day4') {
+                    map.addLayer(dayLayers.day4);
+                    map.fitBounds(L.featureGroup([markers.tsukiji, markers.meiji, markers.harajuku, markers.shinjuku]).getBounds(), { padding: [50, 50] });
+                } else if (tabId === 'day5') {
+                    map.addLayer(dayLayers.day5);
+                    map.fitBounds(L.featureGroup([markers.hotel, markers.sensoji, markers.shibuya]).getBounds(), { padding: [50, 50] });
+                } else {
+                    map.addLayer(dayLayers.all);
+                    map.fitBounds(L.featureGroup(Object.values(markers)).getBounds(), { padding: [50, 50] });
+                }
+            });
+        });
+        
+        // Location click functionality
+        document.querySelectorAll('.location').forEach(loc => {
+            loc.addEventListener('click', function() {
+                const locId = this.getAttribute('data-loc');
+                const dayId = this.getAttribute('data-day');
+                
+                if (locId && markers[locId]) {
+                    markers[locId].openPopup();
+                    map.flyTo(markers[locId].getLatLng(), 14);
+                } else if (dayId) {
+                    // Switch to the day tab
+                    document.querySelector(`.tab[data-tab="${dayId}"]`).click();
+                }
+            });
+        });
+    </script>
 </body>
-</html>
+</html
