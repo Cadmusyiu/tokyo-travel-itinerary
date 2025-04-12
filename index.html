@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>東京旅遊行程表 (2025年5月15-19日)</title>
     
-    <!-- 使用Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=&callback=initMap" async defer></script>
-    
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -55,13 +52,42 @@
             font-size: 1.2rem;
             opacity: 0.9;
         }
-        #map { 
+        .map-container { 
             height: 450px; 
             width: 100%; 
             border-radius: 8px; 
             margin: 20px 0;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             border: 2px solid #e5e7eb;
+            overflow: hidden;
+            position: relative;
+        }
+        .map-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .map-overlay {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
         }
         .tabs { 
             display: flex; 
@@ -94,10 +120,6 @@
         }
         .tab-content.active { 
             display: block;
-        }
-        .location-list {
-            list-style: none;
-            padding: 0;
         }
         .location-item {
             display: flex;
@@ -188,28 +210,6 @@
         .image-container img:hover {
             transform: scale(1.05);
         }
-        .legend {
-            background-color: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 5px 0;
-        }
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-        }
         @media (max-width: 768px) {
             .tabs {
                 justify-content: center;
@@ -236,17 +236,20 @@
         </div>
     </div>
     
-    <div id="map"></div>
-    
-    <div class="legend">
-        <div class="legend-item">
-            <span class="legend-color" style="background-color: #e11d48;"></span> 住宿
-        </div>
-        <div class="legend-item">
-            <span class="legend-color" style="background-color: #3b82f6;"></span> 景點
-        </div>
-        <div class="legend-item">
-            <span class="legend-color" style="background-color: #f59e0b;"></span> 餐廳
+    <!-- 使用靜態地圖圖片替代Google Maps -->
+    <div class="map-container">
+        <img src="https://maps.googleapis.com/maps/api/staticmap?center=35.6895,139.6917&zoom=11&size=800x400&scale=2&maptype=roadmap&style=element:geometry%7Ccolor:0x242f3e&style=element:labels.text.fill%7Ccolor:0x746855&style=element:labels.text.stroke%7Ccolor:0x242f3e&style=feature:administrative.locality%7Celement:labels.text.fill%7Ccolor:0xd59563&style=feature:poi%7Celement:labels.text.fill%7Ccolor:0xd59563&style=feature:poi.park%7Celement:geometry%7Ccolor:0x263c3f&style=feature:poi.park%7Celement:labels.text.fill%7Ccolor:0x6b9a76&style=feature:road%7Celement:geometry%7Ccolor:0x38414e&style=feature:road%7Celement:geometry.stroke%7Ccolor:0x212a37&style=feature:road%7Celement:labels.text.fill%7Ccolor:0x9ca5b3&style=feature:road.highway%7Celement:geometry%7Ccolor:0x746855&style=feature:road.highway%7Celement:geometry.stroke%7Ccolor:0x1f2835&style=feature:road.highway%7Celement:labels.text.fill%7Ccolor:0xf3d19c&style=feature:transit%7Celement:geometry%7Ccolor:0x2f3948&style=feature:transit.station%7Celement:labels.text.fill%7Ccolor:0xd59563&style=feature:water%7Celement:geometry%7Ccolor:0x17263c&style=feature:water%7Celement:labels.text.fill%7Ccolor:0x515c6d&style=feature:water%7Celement:labels.text.stroke%7Ccolor:0x17263c" alt="東京地圖" onerror="this.src='https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';">
+        
+        <div class="map-overlay">
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: #e11d48;"></span> 住宿
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: #3b82f6;"></span> 景點
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: #f59e0b;"></span> 餐廳
+            </div>
         </div>
     </div>
     
@@ -328,8 +331,8 @@
             <div class="time">17:00-19:00</div>
             <div class="description">前往淺草晴空塔，體驗夜景
                 <div class="image-container">
-                    <img src="https://raw.githubusercontent.com/username/tokyo-travel-itinerary/main/images/skytree1.jpg" alt="晴空塔" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1503899036084-c55cdd92da26?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';">
-                    <img src="https://raw.githubusercontent.com/username/tokyo-travel-itinerary/main/images/skytree2.jpg" alt="晴空塔夜景" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1583401656728-617e1d2a0c40?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';">
+                    <img src="https://images.unsplash.com/photo-1503899036084-c55cdd92da26?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="晴空塔">
+                    <img src="https://images.unsplash.com/photo-1583401656728-617e1d2a0c40?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="晴空塔夜景">
                 </div>
             </div>
         </div>
@@ -356,7 +359,7 @@
             <div class="time">09:45-11:00</div>
             <div class="description">參觀鶴岡八幡宮
                 <div class="image-container">
-                    <img src="https://raw.githubusercontent.com/username/tokyo-travel-itinerary/main/images/kamakura1.jpg" alt="鶴岡八幡宮" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1583969430754-a4ca5a9ff208?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';">
+                    <img src="https://images.unsplash.com/photo-1583969430754-a4ca5a9ff208?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="鶴岡八幡宮">
                 </div>
             </div>
         </div>
@@ -374,7 +377,7 @@
             <div class="time">13:00-14:00</div>
             <div class="description">參觀高德院大佛
                 <div class="image-container">
-                    <img src="https://raw.githubusercontent.com/username/tokyo-travel-itinerary/main/images/daibutsu.jpg" alt="鎌倉大佛" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1528360983277-13d401cdc186?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';">
+                    <img src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="鎌倉大佛">
                 </div>
             </div>
         </div>
@@ -383,7 +386,7 @@
             <div class="time">14:30-15:30</div>
             <div class="description">參觀長谷寺
                 <div class="image-container">
-                    <img src="https://raw.githubusercontent.com/username/tokyo-travel-itinerary/main/images/hasedera.jpg" alt="長谷寺" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578271887552-5ac3a72752bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';">
+                    <img src="https://images.unsplash.com/photo-1578271887552-5ac3a72752bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="長谷寺">
                 </div>
             </div>
         </div>
@@ -420,8 +423,8 @@
             <div class="time">09:45-11:30</div>
             <div class="description">參觀北鐮倉寺院群（圓覺寺、建長寺）
                 <div class="image-container">
-                    <img src="https://raw.githubusercontent.com/username/tokyo-travel-itinerary/main/images/engakuji.jpg" alt="北鐮倉寺院" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1583969430769-ca0d7a22ffa3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';">
-                    <img src="https://raw.githubusercontent.com/username/tokyo-travel-itinerary/main/images/bamboo.jpg" alt="鐮倉竹林" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578217476526-77c1fa0b5b82?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';">
+                    <img src="https://images.unsplash.com/photo-1583969430769-ca0d7a22ffa3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="北鐮倉寺院">
+                    <img src="https://images.unsplash.com/photo-1578217476526-77c1fa0b5b82?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="鐮倉竹林">
                 </div>
             </div>
         </div>
@@ -439,8 +442,8 @@
             <div class="time">13:30-15:30</div>
             <div class="description">前往江之島，參觀江之島神社和燈塔，欣賞富士山和海景
                 <div class="image-container">
-                    <img src="https://raw.githubusercontent.com/username/tokyo-travel-itinerary/main/images/enoshima1.jpg" alt="江之島" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1580439471278-7065a93d8b68?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';">
-                    <img src="https://raw.githubusercontent.com/username/tokyo-travel-itinerary/main/images/enoshima2.jpg" alt="江之島海景" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1579948058522-7a634246e44c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';">
+                    <img src="https://images.unsplash.com/photo-1580439471278-7065a93d8b68?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="江之島">
+                    <img src="https://images.unsplash.com/photo-1579948058522-7a634246e44c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="江之島海景">
                 </div>
             </div>
         </div>
@@ -449,8 +452,8 @@
             <div class="time">15:30-17:00</div>
             <div class="description">在七里濱海岸散步，拍攝日落和江之電（有名的海岸鐵路）
                 <div class="image-container">
-                    <img src="https://raw.githubusercontent.com/username/tokyo-travel-itinerary/main/images/enoden.jpg" alt="七里濱" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1526211002306-b8e811088667?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';">
-                    <img src="https://raw.githubusercontent.com/username/tokyo-travel-itinerary/main/images/sunset.jpg" alt="日落風景" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';">
+                    <img src="https://images.unsplash.com/photo-1526211002306-b8e811088667?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="七里濱">
+                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="日落風景">
                 </div>
             </div>
         </div>
@@ -477,8 +480,8 @@
             <div class="time">09:00-10:30</div>
             <div class="description">淺草寺和仲見世通商店街早晨遊覽（避開人群）
                 <div class="image-container">
-                    <img src="https://raw.githubusercontent.com/username/tokyo-travel-itinerary/main/images/sensoji.jpg" alt="淺草寺" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';">
-                    <img src="https://raw.githubusercontent.com/username/tokyo-travel-itinerary/main/images/nakamise.jpg" alt="仲見世通" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1570543922355-c64a19ab2bc7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';">
+                    <img src="https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="淺草寺">
+                    <img src="https://images.unsplash.com/photo-1570543922355-c64a19ab2bc7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="仲見世通">
                 </div>
             </div>
         </div>
@@ -487,7 +490,7 @@
             <div class="time">11:00-12:30</div>
             <div class="description">淺草古著服飾店和手工藝品店探索（合羽橋道具街）
                 <div class="image-container">
-                    <img src="https://raw.githubusercontent.com/username/tokyo-travel-itinerary/main/images/kappabashi.jpg" alt="合羽橋道具街" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1530176928500-2372a88e46ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';">
+                    <img src="https://images.unsplash.com/photo-1530176928500-2372a88e46ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="合羽橋道具街">
                 </div>
             </div>
         </div>
@@ -505,7 +508,7 @@
             <div class="time">14:30-16:30</div>
             <div class="description">隅田公園散步，欣賞隅田川和晴空塔風景
                 <div class="image-container">
-                    <img src="https://raw.githubusercontent.com/username/tokyo-travel-itinerary/main/images/sumida.jpg" alt="隅田公園" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1539156871650-87d079ad6208?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';">
+                    <img src="https://images.unsplash.com/photo-1539156871650-87d079ad6208?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="隅田公園">
                 </div>
             </div>
         </div>
@@ -587,297 +590,12 @@
         
         <p><strong>緊急聯繫：</strong></p>
         <ul>
-        
             <li>緊急電話：110（警察）、119（救護車/消防）</li>
             <li>香港駐東京經濟貿易辦事處：+81-3-3556-8981</li>
         </ul>
     </div>
     
     <script>
-        // 全域變數
-        let map;
-        let markers = [];
-        let bounds = {};
-        
-        // 初始化Google地圖
-        function initMap() {
-            // 東京坐標
-            const tokyo = { lat: 35.6895, lng: 139.6917 };
-            
-            // 創建地圖
-            map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 12,
-                center: tokyo,
-                mapId: "8e0a97af9386fef",
-                styles: [
-                    { "featureType": "all", "elementType": "labels.text.fill", "stylers": [{"color": "#ffffff"}] },
-                    { "featureType": "all", "elementType": "labels.text.stroke", "stylers": [{"color": "#000000"}, {"lightness": 13}] },
-                    { "featureType": "administrative", "elementType": "geometry.fill", "stylers": [{"color": "#000000"}] },
-                    { "featureType": "administrative", "elementType": "geometry.stroke", "stylers": [{"color": "#144b53"}, {"lightness": 14}, {"weight": 1.4}] },
-                    { "featureType": "landscape", "elementType": "all", "stylers": [{"color": "#08304b"}] },
-                    { "featureType": "poi", "elementType": "geometry", "stylers": [{"color": "#0c4152"}, {"lightness": 5}] },
-                    { "featureType": "road.highway", "elementType": "geometry.fill", "stylers": [{"color": "#000000"}] },
-                    { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{"color": "#0b434f"}, {"lightness": 25}] },
-                    { "featureType": "road.arterial", "elementType": "geometry.fill", "stylers": [{"color": "#000000"}] },
-                    { "featureType": "road.arterial", "elementType": "geometry.stroke", "stylers": [{"color": "#0b3d51"}, {"lightness": 16}] },
-                    { "featureType": "road.local", "elementType": "geometry", "stylers": [{"color": "#000000"}] },
-                    { "featureType": "transit", "elementType": "all", "stylers": [{"color": "#146474"}] },
-                    { "featureType": "water", "elementType": "all", "stylers": [{"color": "#021019"}] }
-                ]
-            });
-            
-            // 定義各日行程邊界
-            bounds = {
-                'all': new google.maps.LatLngBounds(),
-                'day1': new google.maps.LatLngBounds(),
-                'day2': new google.maps.LatLngBounds(),
-                'day3': new google.maps.LatLngBounds(),
-                'day4': new google.maps.LatLngBounds(),
-                'day5': new google.maps.LatLngBounds()
-            };
-            
-            // 定義地點
-            const locations = [
-                // 酒店
-                {
-                    position: { lat: 35.7169, lng: 139.7977 },
-                    title: "OMO3 Asakusa by Hoshino Resorts",
-                    type: "hotel",
-                    description: "住宿地點",
-                    day: "all"
-                },
-                
-                // 第1天景點
-                {
-                    position: { lat: 35.7100, lng: 139.8107 },
-                    title: "東京晴空塔",
-                    type: "attraction",
-                    description: "東京的地標性建築",
-                    day: "day1"
-                },
-                {
-                    position: { lat: 35.7123, lng: 139.7967 },
-                    title: "燒肉六歌仙 淺草店",
-                    type: "restaurant",
-                    description: "第1天晚餐 - 高級和牛燒肉",
-                    day: "day1"
-                },
-                
-                // 第2天景點
-                {
-                    position: { lat: 35.3253, lng: 139.5564 },
-                    title: "鶴岡八幡宮",
-                    type: "attraction",
-                    description: "鎌倉最重要的神社",
-                    day: "day2"
-                },
-                {
-                    position: { lat: 35.3167, lng: 139.5358 },
-                    title: "高德院大佛",
-                    type: "attraction",
-                    description: "鎌倉著名的戶外大佛像",
-                    day: "day2"
-                },
-                {
-                    position: { lat: 35.3169, lng: 139.5330 },
-                    title: "長谷寺",
-                    type: "attraction",
-                    description: "以觀音像和美麗的花園聞名的寺廟",
-                    day: "day2"
-                },
-                {
-                    position: { lat: 35.3002, lng: 139.4804 },
-                    title: "江之島",
-                    type: "attraction",
-                    description: "受歡迎的小島，有海灘和神社",
-                    day: "day2"
-                },
-                {
-                    position: { lat: 35.3191, lng: 139.5509 },
-                    title: "鎌倉 松原庵",
-                    type: "restaurant",
-                    description: "第2天午餐 - 傳統蕎麥麵",
-                    day: "day2"
-                },
-                {
-                    position: { lat: 35.6910, lng: 139.7002 },
-                    title: "福笑",
-                    type: "restaurant",
-                    description: "第2天晚餐 - 日本傳統居酒屋",
-                    day: "day2"
-                },
-                
-                // 第3天景點 (鐮倉北部與江之島)
-                {
-                    position: { lat: 35.3371, lng: 139.5470 },
-                    title: "圓覺寺",
-                    type: "attraction",
-                    description: "北鎌倉著名禪宗寺院",
-                    day: "day3"
-                },
-                {
-                    position: { lat: 35.3370, lng: 139.5560 },
-                    title: "建長寺",
-                    type: "attraction",
-                    description: "日本最古老的禪宗寺院",
-                    day: "day3"
-                },
-                {
-                    position: { lat: 35.3365, lng: 139.5520 },
-                    title: "古民家咖啡 いろり",
-                    type: "restaurant",
-                    description: "第3天午餐 - 傳統日式建築咖啡廳",
-                    day: "day3"
-                },
-                {
-                    position: { lat: 35.3002, lng: 139.4804 },
-                    title: "江之島神社",
-                    type: "attraction",
-                    description: "供奉弁財天的神社",
-                    day: "day3"
-                },
-                {
-                    position: { lat: 35.2996, lng: 139.4783 },
-                    title: "江之島燈塔",
-                    type: "attraction",
-                    description: "可眺望富士山和相模灣",
-                    day: "day3"
-                },
-                {
-                    position: { lat: 35.3099, lng: 139.5348 },
-                    title: "七里濱",
-                    type: "attraction",
-                    description: "著名海灘，可拍攝江之電",
-                    day: "day3"
-                },
-                {
-                    position: { lat: 35.6896, lng: 139.7019 },
-                    title: "鎌倉釜飯かまかま 新宿店",
-                    type: "restaurant",
-                    description: "第3天晚餐 - 鎌倉風格釜飯",
-                    day: "day3"
-                },
-                
-                // 第4天景點 (淺草區深度遊)
-                {
-                    position: { lat: 35.7147, lng: 139.7966 },
-                    title: "淺草寺",
-                    type: "attraction",
-                    description: "東京最古老的寺廟",
-                    day: "day4"
-                },
-                {
-                    position: { lat: 35.7152, lng: 139.7963 },
-                    title: "仲見世通商店街",
-                    type: "attraction",
-                    description: "通往淺草寺的傳統購物街",
-                    day: "day4"
-                },
-                {
-                    position: { lat: 35.7126, lng: 139.7913 },
-                    title: "合羽橋道具街",
-                    type: "attraction",
-                    description: "專賣廚具和食品模型的街道",
-                    day: "day4"
-                },
-                {
-                    position: { lat: 35.7153, lng: 139.7941 },
-                    title: "淺草今半 本店",
-                    type: "restaurant",
-                    description: "第4天午餐 - 百年老店壽喜燒",
-                    day: "day4"
-                },
-                {
-                    position: { lat: 35.7111, lng: 139.8014 },
-                    title: "隅田公園",
-                    type: "attraction",
-                    description: "沿著隅田川的公園，賞櫻名所",
-                    day: "day4"
-                },
-                {
-                    position: { lat: 35.7104, lng: 139.7975 },
-                    title: "淺草ROX購物中心",
-                    type: "attraction",
-                    description: "現代化購物中心",
-                    day: "day4"
-                },
-                {
-                    position: { lat: 35.7113, lng: 139.7982 },
-                    title: "天丼金子屋 淺草店",
-                    type: "restaurant",
-                    description: "第4天晚餐 - 天婦羅丼飯",
-                    day: "day4"
-                },
-                
-                // 第5天景點
-                {
-                    position: { lat: 35.7147, lng: 139.7966 },
-                    title: "淺草寺",
-                    type: "attraction",
-                    description: "再次參觀",
-                    day: "day5"
-                },
-                {
-                    position: { lat: 35.7153, lng: 139.7941 },
-                    title: "淺草今半 本店",
-                    type: "restaurant",
-                    description: "第5天午餐 - 百年老店壽喜燒",
-                    day: "day5"
-                }
-            ];
-            
-            // 為每個地點添加標記
-            locations.forEach((location) => {
-                // 根據類型設置圖標顏色
-                let icon = {
-                    path: google.maps.SymbolPath.CIRCLE,
-                    fillColor: location.type === "hotel" ? "#e11d48" : 
-                              location.type === "attraction" ? "#3b82f6" : "#f59e0b",
-                    fillOpacity: 1,
-                    strokeWeight: 2,
-                    strokeColor: "#FFFFFF",
-                    scale: 8
-                };
-                
-                // 創建標記
-                const marker = new google.maps.Marker({
-                    position: location.position,
-                    map: map,
-                    title: location.title,
-                    icon: icon
-                });
-                
-                // 添加到標記數組
-                markers.push({marker: marker, day: location.day});
-                
-                // 添加信息窗口
-                const infowindow = new google.maps.InfoWindow({
-                    content: `<div style="font-family: Arial, sans-serif; padding: 5px;"><strong>${location.title}</strong><br>${location.description}</div>`
-                });
-                
-                // 點擊標記時顯示信息窗口
-                marker.addListener("click", () => {
-                    infowindow.open(map, marker);
-                });
-                
-                // 添加到相應的邊界
-                if (location.day === 'all') {
-                    bounds.all.extend(location.position);
-                    bounds.day1.extend(location.position);
-                    bounds.day2.extend(location.position);
-                    bounds.day3.extend(location.position);
-                    bounds.day4.extend(location.position);
-                    bounds.day5.extend(location.position);
-                } else {
-                    bounds.all.extend(location.position);
-                    bounds[location.day].extend(location.position);
-                }
-            });
-            
-            // 默認顯示所有標記
-            map.fitBounds(bounds.all);
-        }
-        
         // 選項卡切換函數
         function showTab(tabId) {
             // 隱藏所有選項卡內容
@@ -896,22 +614,62 @@
             // 激活選定的選項卡
             document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
             
-            // 縮放地圖到指定日期的邊界
-            if (map && bounds) {
-                if (tabId === 'day1') {
-                    map.fitBounds(bounds.day1);
-                } else if (tabId === 'day2') {
-                    map.fitBounds(bounds.day2);
-                } else if (tabId === 'day3') {
-                    map.fitBounds(bounds.day3);
-                } else if (tabId === 'day4') {
-                    map.fitBounds(bounds.day4);
-                } else if (tabId === 'day5') {
-                    map.fitBounds(bounds.day5);
-                } else {
-                    map.fitBounds(bounds.all);
-                }
+            // 更新靜態地圖，根據不同的日期顯示不同的地圖
+            const mapContainer = document.querySelector('.map-container img');
+            
+            // 定義不同日期的地圖中心點
+            const mapCenters = {
+                'overview': '35.6895,139.6917',
+                'day1': '35.7100,139.8107', // 晴空塔附近
+                'day2': '35.3200,139.5500', // 鎌倉
+                'day3': '35.3200,139.5100', // 鎌倉/江之島
+                'day4': '35.7147,139.7966', // 淺草
+                'day5': '35.7147,139.7966', // 淺草
+                'info': '35.6895,139.6917'
+            };
+            
+            // 定義不同日期的地圖縮放級別
+            const mapZooms = {
+                'overview': '10',
+                'day1': '13',
+                'day2': '12',
+                'day3': '12',
+                'day4': '14',
+                'day5': '14',
+                'info': '10'
+            };
+            
+            // 更新地圖
+            const newMapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${mapCenters[tabId]}&zoom=${mapZooms[tabId]}&size=800x400&scale=2&maptype=roadmap&style=element:geometry%7Ccolor:0x242f3e&style=element:labels.text.fill%7Ccolor:0x746855&style=element:labels.text.stroke%7Ccolor:0x242f3e&style=feature:administrative.locality%7Celement:labels.text.fill%7Ccolor:0xd59563&style=feature:poi%7Celement:labels.text.fill%7Ccolor:0xd59563&style=feature:poi.park%7Celement:geometry%7Ccolor:0x263c3f&style=feature:poi.park%7Celement:labels.text.fill%7Ccolor:0x6b9a76&style=feature:road%7Celement:geometry%7Ccolor:0x38414e&style=feature:road%7Celement:geometry.stroke%7Ccolor:0x212a37&style=feature:road%7Celement:labels.text.fill%7Ccolor:0x9ca5b3&style=feature:road.highway%7Celement:geometry%7Ccolor:0x746855&style=feature:road.highway%7Celement:geometry.stroke%7Ccolor:0x1f2835&style=feature:water%7Celement:geometry%7Ccolor:0x17263c`;
+            
+            // 添加地標標記（只能添加有限數量的標記）
+            let markers = '';
+            
+            if (tabId === 'day1' || tabId === 'overview') {
+                // 添加酒店和晴空塔標記
+                markers += '&markers=color:red|label:H|35.7169,139.7977'; // 酒店
+                markers += '&markers=color:blue|label:S|35.7100,139.8107'; // 晴空塔
+                markers += '&markers=color:yellow|label:R|35.7123,139.7967'; // 餐廳
+            } else if (tabId === 'day2') {
+                // 添加鎌倉景點標記
+                markers += '&markers=color:blue|label:K|35.3253,139.5564'; // 鶴岡八幡宮
+                markers += '&markers=color:blue|label:B|35.3167,139.5358'; // 大佛
+                markers += '&markers=color:blue|label:H|35.3169,139.5330'; // 長谷寺
+            } else if (tabId === 'day3') {
+                // 添加江之島景點標記
+                markers += '&markers=color:blue|label:E|35.3002,139.4804'; // 江之島
+                markers += '&markers=color:blue|label:T|35.3099,139.5348'; // 七里濱
+            } else if (tabId === 'day4' || tabId === 'day5') {
+                // 添加淺草景點標記
+                markers += '&markers=color:red|label:H|35.7169,139.7977'; // 酒店
+                markers += '&markers=color:blue|label:A|35.7147,139.7966'; // 淺草寺
+                markers += '&markers=color:blue|label:S|35.7111,139.8014'; // 隅田公園
             }
+            
+            mapContainer.src = newMapUrl + markers;
+            mapContainer.onerror = function() {
+                this.src = 'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
+            };
         }
     </script>
 </body>
