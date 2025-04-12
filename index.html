@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>東京旅遊行程表 (2025年5月15-19日)</title>
     
+    <!-- Leaflet CSS - 開源地圖庫 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -52,42 +55,14 @@
             font-size: 1.2rem;
             opacity: 0.9;
         }
-        .map-container { 
+        #map { 
             height: 450px; 
             width: 100%; 
             border-radius: 8px; 
             margin: 20px 0;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             border: 2px solid #e5e7eb;
-            overflow: hidden;
-            position: relative;
-        }
-        .map-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .map-overlay {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background-color: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 5px 0;
-        }
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
+            z-index: 1;
         }
         .tabs { 
             display: flex; 
@@ -210,6 +185,9 @@
         .image-container img:hover {
             transform: scale(1.05);
         }
+        .leaflet-control-attribution {
+            font-size: 10px;
+        }
         @media (max-width: 768px) {
             .tabs {
                 justify-content: center;
@@ -236,22 +214,7 @@
         </div>
     </div>
     
-    <!-- 使用靜態地圖圖片替代Google Maps -->
-    <div class="map-container">
-        <img src="https://maps.googleapis.com/maps/api/staticmap?center=35.6895,139.6917&zoom=11&size=800x400&scale=2&maptype=roadmap&style=element:geometry%7Ccolor:0x242f3e&style=element:labels.text.fill%7Ccolor:0x746855&style=element:labels.text.stroke%7Ccolor:0x242f3e&style=feature:administrative.locality%7Celement:labels.text.fill%7Ccolor:0xd59563&style=feature:poi%7Celement:labels.text.fill%7Ccolor:0xd59563&style=feature:poi.park%7Celement:geometry%7Ccolor:0x263c3f&style=feature:poi.park%7Celement:labels.text.fill%7Ccolor:0x6b9a76&style=feature:road%7Celement:geometry%7Ccolor:0x38414e&style=feature:road%7Celement:geometry.stroke%7Ccolor:0x212a37&style=feature:road%7Celement:labels.text.fill%7Ccolor:0x9ca5b3&style=feature:road.highway%7Celement:geometry%7Ccolor:0x746855&style=feature:road.highway%7Celement:geometry.stroke%7Ccolor:0x1f2835&style=feature:road.highway%7Celement:labels.text.fill%7Ccolor:0xf3d19c&style=feature:transit%7Celement:geometry%7Ccolor:0x2f3948&style=feature:transit.station%7Celement:labels.text.fill%7Ccolor:0xd59563&style=feature:water%7Celement:geometry%7Ccolor:0x17263c&style=feature:water%7Celement:labels.text.fill%7Ccolor:0x515c6d&style=feature:water%7Celement:labels.text.stroke%7Ccolor:0x17263c" alt="東京地圖" onerror="this.src='https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';">
-        
-        <div class="map-overlay">
-            <div class="legend-item">
-                <span class="legend-color" style="background-color: #e11d48;"></span> 住宿
-            </div>
-            <div class="legend-item">
-                <span class="legend-color" style="background-color: #3b82f6;"></span> 景點
-            </div>
-            <div class="legend-item">
-                <span class="legend-color" style="background-color: #f59e0b;"></span> 餐廳
-            </div>
-        </div>
-    </div>
+    <div id="map"></div>
     
     <div class="tabs">
         <div class="tab active" onclick="showTab('overview')">概覽</div>
@@ -595,7 +558,309 @@
         </ul>
     </div>
     
+    <!-- Leaflet JS - 開源地圖JavaScript庫 -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
     <script>
+        // 全域變數
+        let map;
+        let markers = [];
+        let markerGroups = {};
+        
+        // 初始化地圖
+        function initMap() {
+            // 東京坐標
+            const tokyo = [35.6895, 139.6917];
+            
+            // 創建地圖
+            map = L.map('map').setView(tokyo, 11);
+            
+            // 添加OpenStreetMap圖層
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+            }).addTo(map);
+            
+            // 創建地圖標記組
+            markerGroups = {
+                all: L.layerGroup(),
+                day1: L.layerGroup(),
+                day2: L.layerGroup(),
+                day3: L.layerGroup(),
+                day4: L.layerGroup(),
+                day5: L.layerGroup()
+            };
+            
+            // 定義地點
+            const locations = [
+                // 酒店
+                {
+                    position: [35.7169, 139.7977],
+                    title: "OMO3 Asakusa by Hoshino Resorts",
+                    type: "hotel",
+                    description: "住宿地點",
+                    day: "all"
+                },
+                
+                // 第1天景點
+                {
+                    position: [35.7100, 139.8107],
+                    title: "東京晴空塔",
+                    type: "attraction",
+                    description: "東京的地標性建築",
+                    day: "day1"
+                },
+                {
+                    position: [35.7123, 139.7967],
+                    title: "燒肉六歌仙 淺草店",
+                    type: "restaurant",
+                    description: "第1天晚餐 - 高級和牛燒肉",
+                    day: "day1"
+                },
+                
+                // 第2天景點
+                {
+                    position: [35.3253, 139.5564],
+                    title: "鶴岡八幡宮",
+                    type: "attraction",
+                    description: "鎌倉最重要的神社",
+                    day: "day2"
+                },
+                {
+                    position: [35.3167, 139.5358],
+                    title: "高德院大佛",
+                    type: "attraction",
+                    description: "鎌倉著名的戶外大佛像",
+                    day: "day2"
+                },
+                {
+                    position: [35.3169, 139.5330],
+                    title: "長谷寺",
+                    type: "attraction",
+                    description: "以觀音像和美麗的花園聞名的寺廟",
+                    day: "day2"
+                },
+                {
+                    position: [35.3002, 139.4804],
+                    title: "江之島",
+                    type: "attraction",
+                    description: "受歡迎的小島，有海灘和神社",
+                    day: "day2"
+                },
+                {
+                    position: [35.3191, 139.5509],
+                    title: "鎌倉 松原庵",
+                    type: "restaurant",
+                    description: "第2天午餐 - 傳統蕎麥麵",
+                    day: "day2"
+                },
+                {
+                    position: [35.6910, 139.7002],
+                    title: "福笑",
+                    type: "restaurant",
+                    description: "第2天晚餐 - 日本傳統居酒屋",
+                    day: "day2"
+                },
+                
+                // 第3天景點 (鐮倉北部與江之島)
+                {
+                    position: [35.3371, 139.5470],
+                    title: "圓覺寺",
+                    type: "attraction",
+                    description: "北鎌倉著名禪宗寺院",
+                    day: "day3"
+                },
+                {
+                    position: [35.3370, 139.5560],
+                    title: "建長寺",
+                    type: "attraction",
+                    description: "日本最古老的禪宗寺院",
+                    day: "day3"
+                },
+                {
+                    position: [35.3365, 139.5520],
+                    title: "古民家咖啡 いろり",
+                    type: "restaurant",
+                    description: "第3天午餐 - 傳統日式建築咖啡廳",
+                    day: "day3"
+                },
+                {
+                    position: [35.3002, 139.4804],
+                    title: "江之島神社",
+                    type: "attraction",
+                    description: "供奉弁財天的神社",
+                    day: "day3"
+                },
+                {
+                    position: [35.2996, 139.4783],
+                    title: "江之島燈塔",
+                    type: "attraction",
+                    description: "可眺望富士山和相模灣",
+                    day: "day3"
+                },
+                {
+                    position: [35.3099, 139.5348],
+                    title: "七里濱",
+                    type: "attraction",
+                    description: "著名海灘，可拍攝江之電",
+                    day: "day3"
+                },
+                {
+                    position: [35.6896, 139.7019],
+                    title: "鎌倉釜飯かまかま 新宿店",
+                    type: "restaurant",
+                    description: "第3天晚餐 - 鎌倉風格釜飯",
+                    day: "day3"
+                },
+                
+                // 第4天景點 (淺草區深度遊)
+                {
+                    position: [35.7147, 139.7966],
+                    title: "淺草寺",
+                    type: "attraction",
+                    description: "東京最古老的寺廟",
+                    day: "day4"
+                },
+                {
+                    position: [35.7152, 139.7963],
+                    title: "仲見世通商店街",
+                    type: "attraction",
+                    description: "通往淺草寺的傳統購物街",
+                    day: "day4"
+                },
+                {
+                    position: [35.7126, 139.7913],
+                    title: "合羽橋道具街",
+                    type: "attraction",
+                    description: "專賣廚具和食品模型的街道",
+                    day: "day4"
+                },
+                {
+                    position: [35.7153, 139.7941],
+                    title: "淺草今半 本店",
+                    type: "restaurant",
+                    description: "第4天午餐 - 百年老店壽喜燒",
+                    day: "day4"
+                },
+                {
+                    position: [35.7111, 139.8014],
+                    title: "隅田公園",
+                    type: "attraction",
+                    description: "沿著隅田川的公園，賞櫻名所",
+                    day: "day4"
+                },
+                {
+                    position: [35.7104, 139.7975],
+                    title: "淺草ROX購物中心",
+                    type: "attraction",
+                    description: "現代化購物中心",
+                    day: "day4"
+                },
+                {
+                    position: [35.7113, 139.7982],
+                    title: "天丼金子屋 淺草店",
+                    type: "restaurant",
+                    description: "第4天晚餐 - 天婦羅丼飯",
+                    day: "day4"
+                },
+                
+                // 第5天景點
+                {
+                    position: [35.7147, 139.7966],
+                    title: "淺草寺",
+                    type: "attraction",
+                    description: "再次參觀",
+                    day: "day5"
+                },
+                {
+                    position: [35.7153, 139.7941],
+                    title: "淺草今半 本店",
+                    type: "restaurant",
+                    description: "第5天午餐 - 百年老店壽喜燒",
+                    day: "day5"
+                }
+            ];
+            
+            // 為每個地點添加標記
+            locations.forEach((location) => {
+                // 創建圖標
+                let markerIcon;
+                
+                if (location.type === "hotel") {
+                    markerIcon = L.divIcon({
+                        html: '<div style="background-color: #e11d48; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>',
+                        className: 'marker-icon',
+                        iconSize: [16, 16],
+                        iconAnchor: [8, 8]
+                    });
+                } else if (location.type === "attraction") {
+                    markerIcon = L.divIcon({
+                        html: '<div style="background-color: #3b82f6; width: 10px; height: 10px; border-radius: 50%; border: 2px solid white;"></div>',
+                        className: 'marker-icon',
+                        iconSize: [14, 14],
+                        iconAnchor: [7, 7]
+                    });
+                } else {
+                    markerIcon = L.divIcon({
+                        html: '<div style="background-color: #f59e0b; width: 10px; height: 10px; border-radius: 50%; border: 2px solid white;"></div>',
+                        className: 'marker-icon',
+                        iconSize: [14, 14],
+                        iconAnchor: [7, 7]
+                    });
+                }
+                
+                // 創建標記
+                const marker = L.marker(location.position, { icon: markerIcon })
+                    .bindPopup(`<strong>${location.title}</strong><br>${location.description}`);
+                    
+                // 添加到標記組
+                markerGroups.all.addLayer(marker);
+                
+                // 根據日期添加到相應的組
+                if (location.day === "all") {
+                    markerGroups.day1.addLayer(marker);
+                    markerGroups.day2.addLayer(marker);
+                    markerGroups.day3.addLayer(marker);
+                    markerGroups.day4.addLayer(marker);
+                    markerGroups.day5.addLayer(marker);
+                } else {
+                    markerGroups[location.day].addLayer(marker);
+                }
+                
+                // 保存到標記數組
+                markers.push({
+                    marker: marker,
+                    day: location.day
+                });
+            });
+            
+            // 添加圖例
+            const legend = L.control({ position: 'bottomright' });
+            
+            legend.onAdd = function(map) {
+                const div = L.DomUtil.create('div', 'legend');
+                div.innerHTML = `
+                    <div style="background-color: white; padding: 8px; border-radius: 4px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                        <div style="margin: 5px 0; display: flex; align-items: center;">
+                            <span style="width: 12px; height: 12px; background-color: #e11d48; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> 住宿
+                        </div>
+                        <div style="margin: 5px 0; display: flex; align-items: center;">
+                            <span style="width: 12px; height: 12px; background-color: #3b82f6; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> 景點
+                        </div>
+                        <div style="margin: 5px 0; display: flex; align-items: center;">
+                            <span style="width: 12px; height: 12px; background-color: #f59e0b; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> 餐廳
+                        </div>
+                    </div>
+                `;
+                return div;
+            };
+            
+            legend.addTo(map);
+            
+            // 默認顯示全部標記
+            markerGroups.all.addTo(map);
+        }
+        
         // 選項卡切換函數
         function showTab(tabId) {
             // 隱藏所有選項卡內容
@@ -614,63 +879,55 @@
             // 激活選定的選項卡
             document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
             
-            // 更新靜態地圖，根據不同的日期顯示不同的地圖
-            const mapContainer = document.querySelector('.map-container img');
-            
-            // 定義不同日期的地圖中心點
-            const mapCenters = {
-                'overview': '35.6895,139.6917',
-                'day1': '35.7100,139.8107', // 晴空塔附近
-                'day2': '35.3200,139.5500', // 鎌倉
-                'day3': '35.3200,139.5100', // 鎌倉/江之島
-                'day4': '35.7147,139.7966', // 淺草
-                'day5': '35.7147,139.7966', // 淺草
-                'info': '35.6895,139.6917'
-            };
-            
-            // 定義不同日期的地圖縮放級別
-            const mapZooms = {
-                'overview': '10',
-                'day1': '13',
-                'day2': '12',
-                'day3': '12',
-                'day4': '14',
-                'day5': '14',
-                'info': '10'
-            };
-            
-            // 更新地圖
-            const newMapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${mapCenters[tabId]}&zoom=${mapZooms[tabId]}&size=800x400&scale=2&maptype=roadmap&style=element:geometry%7Ccolor:0x242f3e&style=element:labels.text.fill%7Ccolor:0x746855&style=element:labels.text.stroke%7Ccolor:0x242f3e&style=feature:administrative.locality%7Celement:labels.text.fill%7Ccolor:0xd59563&style=feature:poi%7Celement:labels.text.fill%7Ccolor:0xd59563&style=feature:poi.park%7Celement:geometry%7Ccolor:0x263c3f&style=feature:poi.park%7Celement:labels.text.fill%7Ccolor:0x6b9a76&style=feature:road%7Celement:geometry%7Ccolor:0x38414e&style=feature:road%7Celement:geometry.stroke%7Ccolor:0x212a37&style=feature:road%7Celement:labels.text.fill%7Ccolor:0x9ca5b3&style=feature:road.highway%7Celement:geometry%7Ccolor:0x746855&style=feature:road.highway%7Celement:geometry.stroke%7Ccolor:0x1f2835&style=feature:water%7Celement:geometry%7Ccolor:0x17263c`;
-            
-            // 添加地標標記（只能添加有限數量的標記）
-            let markers = '';
-            
-            if (tabId === 'day1' || tabId === 'overview') {
-                // 添加酒店和晴空塔標記
-                markers += '&markers=color:red|label:H|35.7169,139.7977'; // 酒店
-                markers += '&markers=color:blue|label:S|35.7100,139.8107'; // 晴空塔
-                markers += '&markers=color:yellow|label:R|35.7123,139.7967'; // 餐廳
-            } else if (tabId === 'day2') {
-                // 添加鎌倉景點標記
-                markers += '&markers=color:blue|label:K|35.3253,139.5564'; // 鶴岡八幡宮
-                markers += '&markers=color:blue|label:B|35.3167,139.5358'; // 大佛
-                markers += '&markers=color:blue|label:H|35.3169,139.5330'; // 長谷寺
-            } else if (tabId === 'day3') {
-                // 添加江之島景點標記
-                markers += '&markers=color:blue|label:E|35.3002,139.4804'; // 江之島
-                markers += '&markers=color:blue|label:T|35.3099,139.5348'; // 七里濱
-            } else if (tabId === 'day4' || tabId === 'day5') {
-                // 添加淺草景點標記
-                markers += '&markers=color:red|label:H|35.7169,139.7977'; // 酒店
-                markers += '&markers=color:blue|label:A|35.7147,139.7966'; // 淺草寺
-                markers += '&markers=color:blue|label:S|35.7111,139.8014'; // 隅田公園
+            // 更新地圖標記
+            if (map) {
+                // 移除所有標記組
+                Object.values(markerGroups).forEach(group => {
+                    map.removeLayer(group);
+                });
+                
+                // 添加相應的標記組
+                if (tabId === 'day1') {
+                    map.addLayer(markerGroups.day1);
+                    // 適應邊界
+                    const group = L.featureGroup(markers
+                        .filter(m => m.day === 'day1' || m.day === 'all')
+                        .map(m => m.marker));
+                    map.fitBounds(group.getBounds(), { padding: [50, 50] });
+                } else if (tabId === 'day2') {
+                    map.addLayer(markerGroups.day2);
+                    const group = L.featureGroup(markers
+                        .filter(m => m.day === 'day2' || m.day === 'all')
+                        .map(m => m.marker));
+                    map.fitBounds(group.getBounds(), { padding: [50, 50] });
+                } else if (tabId === 'day3') {
+                    map.addLayer(markerGroups.day3);
+                    const group = L.featureGroup(markers
+                        .filter(m => m.day === 'day3' || m.day === 'all')
+                        .map(m => m.marker));
+                    map.fitBounds(group.getBounds(), { padding: [50, 50] });
+                } else if (tabId === 'day4') {
+                    map.addLayer(markerGroups.day4);
+                    const group = L.featureGroup(markers
+                        .filter(m => m.day === 'day4' || m.day === 'all')
+                        .map(m => m.marker));
+                    map.fitBounds(group.getBounds(), { padding: [50, 50] });
+                } else if (tabId === 'day5') {
+                    map.addLayer(markerGroups.day5);
+                    const group = L.featureGroup(markers
+                        .filter(m => m.day === 'day5' || m.day === 'all')
+                        .map(m => m.marker));
+                    map.fitBounds(group.getBounds(), { padding: [50, 50] });
+                } else {
+                    map.addLayer(markerGroups.all);
+                    const group = L.featureGroup(markers.map(m => m.marker));
+                    map.fitBounds(group.getBounds(), { padding: [50, 50] });
+                }
             }
-            
-            mapContainer.src = newMapUrl + markers;
-            mapContainer.onerror = function() {
-                this.src = 'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80';
-            };
         }
+        
+        // 頁面加載完成後初始化地圖
+        document.addEventListener('DOMContentLoaded', initMap);
     </script>
 </body>
 </html>
